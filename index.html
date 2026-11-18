@@ -626,6 +626,14 @@ function render() {
   <div class="gauge-value" id="gaugeValDisplay">${formatVal(state.gaugeVal, q)}</div>
   <div class="gauge-unit">${q.unit}</div>`;
 
+  if (isReveal && revealData) {
+    html += `<div style="display:flex;justify-content:center;gap:18px;font-size:0.78rem;color:var(--muted);margin-top:2px">
+      <span><span style="display:inline-block;width:12px;height:3px;background:#e8e8f0;border-radius:2px;vertical-align:middle;margin-right:4px"></span>You</span>
+      <span><span style="display:inline-block;width:12px;height:3px;background:#f7c26a;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Median</span>
+      <span><span style="display:inline-block;width:3px;height:10px;background:rgba(255,255,255,0.35);border-radius:1px;vertical-align:middle;margin-right:4px"></span>Players</span>
+    </div>`;
+  }
+
   // Reveal card or Lock-in button
   if (isReveal && revealData) {
     const pts = state.points[state.current];
