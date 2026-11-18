@@ -91,9 +91,9 @@
   },
   {
     "id": 16,
-    "text": "What is the speed limit on a UK motorway (mph)?",
-    "min": 50, "max": 100, "step": 5, "unit": "mph",
-    "seed": { "median": 70, "spread": 5, "skew": 0 }
+    "text": "How many calories are in a Big Mac (kcal)?",
+    "min": 200, "max": 1200, "step": 25, "unit": "kcal",
+    "seed": { "median": 550, "spread": 150, "skew": 0.2 }
   },
   {
     "id": 17,
@@ -205,9 +205,9 @@
   },
   {
     "id": 35,
-    "text": "What year did the first iPhone come out?",
-    "min": 2000, "max": 2015, "step": 1, "unit": "",
-    "seed": { "median": 2007, "spread": 2, "skew": 0 }
+    "text": "What percentage of Brits have used a food bank at least once?",
+    "min": 1, "max": 40, "step": 1, "unit": "%",
+    "seed": { "median": 12, "spread": 8, "skew": 0.4 }
   },
   {
     "id": 36,
@@ -229,9 +229,9 @@
   },
   {
     "id": 39,
-    "text": "What percentage of Brits voted Leave in the 2016 Brexit referendum?",
-    "min": 30, "max": 70, "step": 1, "unit": "%",
-    "seed": { "median": 52, "spread": 5, "skew": 0 }
+    "text": "What percentage of UK adults watch no TV news in a typical week?",
+    "min": 5, "max": 60, "step": 1, "unit": "%",
+    "seed": { "median": 32, "spread": 12, "skew": 0.2 }
   },
   {
     "id": 40,
@@ -325,9 +325,9 @@
   },
   {
     "id": 55,
-    "text": "What is the age of consent in the UK?",
-    "min": 14, "max": 21, "step": 1, "unit": "yrs",
-    "seed": { "median": 16, "spread": 1, "skew": 0 }
+    "text": "If you could set the voting age, what age would you choose?",
+    "min": 14, "max": 25, "step": 1, "unit": "yrs",
+    "seed": { "median": 18, "spread": 2, "skew": -0.2 }
   },
   {
     "id": 56,
@@ -373,9 +373,9 @@
   },
   {
     "id": 63,
-    "text": "How many Premiership football teams are there?",
-    "min": 10, "max": 30, "step": 1, "unit": "",
-    "seed": { "median": 20, "spread": 2, "skew": 0 }
+    "text": "How much does the average UK wedding cost (£000s)?",
+    "min": 1, "max": 60, "step": 1, "unit": "k£",
+    "seed": { "median": 20, "spread": 8, "skew": 0.5 }
   },
   {
     "id": 64,
@@ -463,9 +463,9 @@
   },
   {
     "id": 78,
-    "text": "What year was the NHS founded?",
-    "min": 1930, "max": 1960, "step": 1, "unit": "",
-    "seed": { "median": 1948, "spread": 4, "skew": 0 }
+    "text": "How many people are on the NHS waiting list (millions)?",
+    "min": 1, "max": 15, "step": 0.5, "unit": "M",
+    "seed": { "median": 7.5, "spread": 2.5, "skew": 0.2 }
   },
   {
     "id": 79,
@@ -547,9 +547,9 @@
   },
   {
     "id": 92,
-    "text": "What is the highest mountain in the UK (metres)?",
-    "min": 500, "max": 1500, "step": 50, "unit": "m",
-    "seed": { "median": 1344, "spread": 150, "skew": 0 }
+    "text": "How much is the average UK student debt on graduation (£000s)?",
+    "min": 5, "max": 80, "step": 1, "unit": "k£",
+    "seed": { "median": 45, "spread": 12, "skew": 0.2 }
   },
   {
     "id": 93,
@@ -583,9 +583,9 @@
   },
   {
     "id": 98,
-    "text": "What year did Twitter (X) launch?",
-    "min": 2000, "max": 2015, "step": 1, "unit": "",
-    "seed": { "median": 2006, "spread": 2, "skew": 0 }
+    "text": "What percentage of UK adults have at least one tattoo?",
+    "min": 5, "max": 60, "step": 1, "unit": "%",
+    "seed": { "median": 29, "spread": 10, "skew": 0.2 }
   },
   {
     "id": 99,
