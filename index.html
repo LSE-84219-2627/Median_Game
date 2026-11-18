@@ -485,7 +485,7 @@ function buildGaugeSVG(q, currentVal, revealData) {
   // Actually we need large-arc flag based on angle span
   const spanRad = fillAngle - (-Math.PI);
   const largeFill = spanRad > Math.PI ? 1 : 0;
-  svg += `<path d="M${start.x},${start.y} A${R},${R} 0 ${largeFill},1 ${fillEnd.x},${fillEnd.y}"
+  svg += `<path id="gauge-fill" d="M${start.x},${start.y} A${R},${R} 0 ${largeFill},1 ${fillEnd.x},${fillEnd.y}"
     fill="none" stroke="#7c6af7" stroke-width="22" stroke-linecap="round" opacity="0.7"/>`;
 
   // Reveal: other player ticks
@@ -524,8 +524,8 @@ function buildGaugeSVG(q, currentVal, revealData) {
   const p1 = { x: nBack.x + nw * Math.cos(perpAngle), y: nBack.y + nw * Math.sin(perpAngle) };
   const p2 = { x: nBack.x - nw * Math.cos(perpAngle), y: nBack.y - nw * Math.sin(perpAngle) };
 
-  svg += `<polygon points="${nTip.x},${nTip.y} ${p1.x},${p1.y} ${p2.x},${p2.y}"
-    fill="${revealData ? '#7c6af7' : '#e8e8f0'}" id="needle"/>`;
+  svg += `<polygon id="gauge-needle" points="${nTip.x},${nTip.y} ${p1.x},${p1.y} ${p2.x},${p2.y}"
+    fill="${revealData ? '#7c6af7' : '#e8e8f0'}"/>`;
 
   // Centre hub
   svg += `<circle cx="${cx}" cy="${cy}" r="8" fill="#1a1a24" stroke="#7c6af7" stroke-width="2"/>`;
@@ -751,50 +751,75 @@ async function renderYesterday(main) {
 // DRAG / TOUCH
 // ═══════════════════════════════════════════════════════
 
+// Update only the two moving SVG parts — never rebuilds innerHTML
+function updateGaugeDynamic(q, v) {
+  const cx = 150, cy = 155, R = 130, innerR = 85;
+  const start = polarToXY(cx, cy, R, -Math.PI);
+
+  const fillAngle = valToAngle(v, q.min, q.max);
+  const fillEnd = polarToXY(cx, cy, R, fillAngle);
+  const spanRad = fillAngle - (-Math.PI);
+  const largeFill = spanRad > Math.PI ? 1 : 0;
+
+  const fillEl = document.getElementById('gauge-fill');
+  if (fillEl) fillEl.setAttribute('d',
+    `M${start.x},${start.y} A${R},${R} 0 ${largeFill},1 ${fillEnd.x},${fillEnd.y}`);
+
+  const nAngle = valToAngle(v, q.min, q.max);
+  const nTip   = polarToXY(cx, cy, R - 10, nAngle);
+  const nBack  = polarToXY(cx, cy, innerR + 10, nAngle);
+  const perp   = nAngle + Math.PI / 2;
+  const nw = 4;
+  const p1 = { x: nBack.x + nw * Math.cos(perp), y: nBack.y + nw * Math.sin(perp) };
+  const p2 = { x: nBack.x - nw * Math.cos(perp), y: nBack.y - nw * Math.sin(perp) };
+  const needleEl = document.getElementById('gauge-needle');
+  if (needleEl) needleEl.setAttribute('points',
+    `${nTip.x},${nTip.y} ${p1.x},${p1.y} ${p2.x},${p2.y}`);
+
+  const disp = document.getElementById('gaugeValDisplay');
+  if (disp) disp.textContent = formatVal(v, q);
+}
+
+// Single shared drag handler — replaced each question, never stacked
+let _activeDragHandler = null;
+
 function attachDrag(q) {
   const drag = document.getElementById('gaugeDrag');
   if (!drag) return;
 
-  function getAngleFromEvent(e) {
+  function angleFromEvent(e) {
     const rect = drag.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height; // bottom centre = gauge pivot
-    // Angle from centre
-    const dx = clientX - cx;
-    const dy = clientY - cy;
-    return Math.atan2(dy, dx);
+    return Math.atan2(clientY - (rect.top + rect.height), clientX - (rect.left + rect.width / 2));
   }
 
   function angleToVal(ang) {
-    // -PI (left) = min, 0 (right) = max
-    // clamp to [-PI, 0]
     const clamped = clamp(ang, -Math.PI, 0);
     const t = (clamped + Math.PI) / Math.PI;
-    const raw = q.min + t * (q.max - q.min);
-    return clamp(roundToStep(raw, q.step), q.min, q.max);
+    return clamp(roundToStep(q.min + t * (q.max - q.min), q.step), q.min, q.max);
   }
 
-  function update(e) {
+  function onMove(e) {
     if (!state.dragging) return;
     e.preventDefault();
-    const ang = getAngleFromEvent(e);
-    const v = angleToVal(ang);
+    const v = angleToVal(angleFromEvent(e));
     state.gaugeVal = v;
-    // Update just the display parts without full re-render
-    const gaugeWrap = document.getElementById('gaugeWrap');
-    if (gaugeWrap) gaugeWrap.innerHTML = buildGaugeSVG(q, v, null) + `<div class="gauge-drag" id="gaugeDrag"></div>`;
-    const disp = document.getElementById('gaugeValDisplay');
-    if (disp) disp.textContent = formatVal(v, q);
-    attachDrag(q); // re-attach after innerHTML change
+    updateGaugeDynamic(q, v);
   }
 
-  drag.addEventListener('mousedown', e => { state.dragging = true; update(e); });
-  drag.addEventListener('touchstart', e => { state.dragging = true; update(e); }, { passive: false });
-  window.addEventListener('mousemove', update, { passive: false });
-  window.addEventListener('touchmove', update, { passive: false });
-  window.addEventListener('mouseup', () => { state.dragging = false; });
+  drag.addEventListener('mousedown',  e => { state.dragging = true; onMove(e); });
+  drag.addEventListener('touchstart', e => { state.dragging = true; onMove(e); }, { passive: false });
+
+  // Replace the previous window-level move handler so there's always exactly one
+  if (_activeDragHandler) {
+    window.removeEventListener('mousemove', _activeDragHandler);
+    window.removeEventListener('touchmove', _activeDragHandler);
+  }
+  _activeDragHandler = onMove;
+  window.addEventListener('mousemove', onMove, { passive: false });
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup',  () => { state.dragging = false; });
   window.addEventListener('touchend', () => { state.dragging = false; });
 }
 
