@@ -488,26 +488,14 @@ function buildGaugeSVG(q, currentVal, revealData) {
   svg += `<path id="gauge-fill" d="M${start.x},${start.y} A${R},${R} 0 ${largeFill},1 ${fillEnd.x},${fillEnd.y}"
     fill="none" stroke="#7c6af7" stroke-width="22" stroke-linecap="round" opacity="0.7"/>`;
 
-  // Reveal: other player ticks
+  // Reveal: just the median marker, no per-player tick noise
   if (revealData) {
-    const allTicks = revealData.allValues;
-    // draw faint ticks for each answer
-    allTicks.forEach((v, i) => {
-      const ang = valToAngle(v, q.min, q.max);
-      const outerP = polarToXY(cx, cy, R + 5, ang);
-      const innerP = polarToXY(cx, cy, innerR - 5, ang);
-      svg += `<line x1="${outerP.x}" y1="${outerP.y}" x2="${innerP.x}" y2="${innerP.y}"
-        stroke="#ffffff" stroke-width="1.5" opacity="0.18" class="tick-animate" style="animation-delay:${i * 15}ms"/>`;
-    });
-
-    // Bold median marker
     const mAng = valToAngle(revealData.median, q.min, q.max);
     const mOuter = polarToXY(cx, cy, R + 8, mAng);
     const mInner = polarToXY(cx, cy, innerR - 8, mAng);
     svg += `<line x1="${mOuter.x}" y1="${mOuter.y}" x2="${mInner.x}" y2="${mInner.y}"
-      stroke="#f7c26a" stroke-width="4" stroke-linecap="round" class="tick-animate"/>`;
+      stroke="#f7c26a" stroke-width="5" stroke-linecap="round" class="tick-animate"/>`;
 
-    // Median label
     const mLabel = polarToXY(cx, cy, R + 22, mAng);
     svg += `<text x="${mLabel.x}" y="${mLabel.y}" text-anchor="middle" dominant-baseline="middle"
       font-size="10" font-weight="800" fill="#f7c26a" class="tick-animate">med</text>`;
@@ -630,7 +618,6 @@ function render() {
     html += `<div style="display:flex;justify-content:center;gap:18px;font-size:0.78rem;color:var(--muted);margin-top:2px">
       <span><span style="display:inline-block;width:12px;height:3px;background:#e8e8f0;border-radius:2px;vertical-align:middle;margin-right:4px"></span>You</span>
       <span><span style="display:inline-block;width:12px;height:3px;background:#f7c26a;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Median</span>
-      <span><span style="display:inline-block;width:3px;height:10px;background:rgba(255,255,255,0.35);border-radius:1px;vertical-align:middle;margin-right:4px"></span>Players</span>
     </div>`;
   }
 
@@ -896,7 +883,6 @@ async function lockIn() {
   state.phase = 'reveal';
   state._revealData = {
     median: med,
-    allValues: [...withOurs.slice(0, 60), ...seedAnswers.slice(0, 20)],
     playerCount: withOurs.length
   };
 
