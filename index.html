@@ -241,8 +241,17 @@ const SEED_COUNT = 40;
 // ═══════════════════════════════════════════════════════
 
 function ukDateStr(offset = 0) {
-  const d = new Date(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }));
-  d.setDate(d.getDate() + offset);
+  // Get current date in UK time using Intl, avoiding the new Date(localeString) pitfall
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(now);
+  const y = parts.find(p => p.type === 'year').value;
+  const m = parts.find(p => p.type === 'month').value;
+  const dy = parts.find(p => p.type === 'day').value;
+  const d = new Date(`${y}-${m}-${dy}`);
+  d.setUTCDate(d.getUTCDate() + offset);
   return d.toISOString().slice(0, 10);
 }
 
